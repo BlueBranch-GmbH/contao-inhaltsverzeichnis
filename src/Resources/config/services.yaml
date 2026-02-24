@@ -3,3 +3,11 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+
+    Bluebranch\Inhaltsverzeichnis\:
+        resource: '../../../src'
+        exclude: '../../../src/{Resources,DependencyInjection,Tests}'
+
+    Bluebranch\Inhaltsverzeichnis\EventListener\InjectHeadingIdsListener:
+        tags:
+            - { name: kernel.event_subscriber }
