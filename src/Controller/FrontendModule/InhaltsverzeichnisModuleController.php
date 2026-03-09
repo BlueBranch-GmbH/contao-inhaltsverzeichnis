@@ -39,48 +39,37 @@ class InhaltsverzeichnisModuleController extends AbstractFrontendModuleControlle
         $htmlId    = $cssIdData[0] ?? '';
         $cssClass  = $cssIdData[1] ?? '';
 
-        // Page mode: render placeholder, InjectHeadingIdsListener fills it after full rendering
         if ($model->toc_source === 'page') {
-            $config = ['s' => $startLevel, 'e' => $endLevel, 'l' => $listType];
-
-            if ($htmlId !== '') {
-                $config['id'] = $htmlId;
-            }
-
-            if ($cssClass !== '') {
-                $config['c'] = $cssClass;
-            }
-
-            $json = json_encode($config, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP);
+            // Page mode: placeholder div inside nav; InjectHeadingIdsListener replaces
+            // the entire <nav>...<div>...</div>...</nav> block after full page rendering.
+            // Routing through the template ensures customTpl, headline and cssID work.
+            $json = json_encode(
+                ['s' => $startLevel, 'e' => $endLevel, 'l' => $listType],
+                JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP
+            );
 
             if ($json === false) {
                 return new Response('');
             }
 
-            $output = '';
+            $tocHtml = "<div data-toc-config='" . $json . "' class='inhaltsverzeichnis-placeholder'></div>";
+        } else {
+            // Articles mode: DB queries with column filter
+            $pageId  = (int) $GLOBALS['objPage']->id;
+            $columns = StringUtil::deserialize($model->toc_columns, true);
 
-            if ($headlineText !== '') {
-                $output .= '<' . $headlineUnit . '>' . htmlspecialchars($headlineText, ENT_QUOTES, 'UTF-8') . '</' . $headlineUnit . ">\n";
+            if (empty($columns)) {
+                $columns = ['main'];
             }
 
-            $output .= "<div data-toc-config='" . $json . "' class='inhaltsverzeichnis-placeholder'></div>";
-
-            return new Response($output);
+            $tocHtml = $this->builder->build($pageId, $startLevel, $endLevel, $listType, $columns);
         }
 
-        // Articles mode: DB queries with column filter (existing behaviour)
-        $pageId  = (int) $GLOBALS['objPage']->id;
-        $columns = StringUtil::deserialize($model->toc_columns, true);
-
-        if (empty($columns)) {
-            $columns = ['main'];
-        }
-
-        $tocHtml = $this->builder->build($pageId, $startLevel, $endLevel, $listType, $columns);
+        $isEmpty = $model->toc_source !== 'page' && $tocHtml === '';
 
         if (method_exists($template, 'set')) {
             $template->set('tocHtml', $tocHtml);
-            $template->set('isEmpty', $tocHtml === '');
+            $template->set('isEmpty', $isEmpty);
             $template->set('headline', $headlineText);
             $template->set('headlineUnit', $headlineUnit);
             $template->set('htmlId', $htmlId);
@@ -89,8 +78,13 @@ class InhaltsverzeichnisModuleController extends AbstractFrontendModuleControlle
             return $template->getResponse();
         }
 
+        // Contao 4.x: apply customTpl explicitly (framework may not handle it automatically)
+        if ($model->customTpl && method_exists($template, 'setName')) {
+            $template->setName($model->customTpl);
+        }
+
         $template->tocHtml      = $tocHtml;
-        $template->isEmpty      = $tocHtml === '';
+        $template->isEmpty      = $isEmpty;
         $template->headline     = $headlineText;
         $template->headlineUnit = $headlineUnit;
         $template->htmlId       = $htmlId;
