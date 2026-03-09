@@ -1,5 +1,8 @@
+<?php if ($this->headline): ?>
+<<?php echo $this->headlineUnit; ?>><?php echo $this->headline; ?></<?php echo $this->headlineUnit; ?>>
+<?php endif; ?>
 <?php if (!$this->isEmpty): ?>
-<nav class="inhaltsverzeichnis">
+<nav class="inhaltsverzeichnis<?php echo $this->cssClass ? ' ' . $this->cssClass : ''; ?>"<?php echo $this->htmlId ? ' id="' . $this->htmlId . '"' : ''; ?>>
     <?php echo $this->tocHtml; ?>
 </nav>
 <?php endif; ?>
