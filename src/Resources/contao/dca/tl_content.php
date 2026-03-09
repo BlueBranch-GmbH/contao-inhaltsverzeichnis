@@ -6,6 +6,8 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_content']['palettes']['inhaltsverzeichnis'] =
     '{type_legend},type,headline;'
     . '{inhaltsverzeichnis_legend},toc_source,toc_headline_start,toc_headline_end,toc_list_type,toc_columns;'
+    . '{template_legend:hide},customTpl;'
+    . '{expert_legend:hide},guests,cssID;'
     . '{invisible_legend:hide},invisible,start,stop';
 
 // Felder

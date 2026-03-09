@@ -6,8 +6,9 @@ declare(strict_types=1);
 $GLOBALS['TL_DCA']['tl_module']['palettes']['inhaltsverzeichnis'] =
     '{title_legend},name,headline,type;'
     . '{inhaltsverzeichnis_legend},toc_source,toc_headline_start,toc_headline_end,toc_list_type,toc_columns;'
+    . '{template_legend:hide},customTpl;'
     . '{protected_legend:hide},protected;'
-    . '{invisible_legend:hide},guests,cssID';
+    . '{expert_legend:hide},guests,cssID';
 
 // Felder (identisch mit tl_content — Contao teilt DB-Felder nicht automatisch)
 $GLOBALS['TL_DCA']['tl_module']['fields']['toc_source'] = [

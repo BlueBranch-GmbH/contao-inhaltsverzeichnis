@@ -1,5 +1,8 @@
+{% if headline is defined and headline %}
+<{{ headlineUnit }}>{{ headline }}</{{ headlineUnit }}>
+{% endif %}
 {% if not isEmpty %}
-<nav class="inhaltsverzeichnis">
+<nav class="inhaltsverzeichnis{{ cssClass is defined and cssClass ? ' ' ~ cssClass }}"{% if htmlId is defined and htmlId %} id="{{ htmlId }}"{% endif %}>
     {{ tocHtml|raw }}
 </nav>
 {% endif %}

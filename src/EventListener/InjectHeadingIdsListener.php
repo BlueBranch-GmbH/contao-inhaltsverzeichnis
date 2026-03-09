@@ -94,6 +94,8 @@ class InjectHeadingIdsListener implements EventSubscriberInterface
                     $startLevel = (int) ($config['s'] ?? 2);
                     $endLevel   = (int) ($config['e'] ?? 4);
                     $listType   = in_array($config['l'] ?? '', ['ol', 'ul'], true) ? $config['l'] : 'ol';
+                    $htmlId     = isset($config['id']) ? (string) $config['id'] : '';
+                    $cssClass   = isset($config['c'])  ? (string) $config['c']  : '';
 
                     $filtered = array_values(array_filter(
                         $headings,
@@ -104,7 +106,10 @@ class InjectHeadingIdsListener implements EventSubscriberInterface
                         return '';
                     }
 
-                    return '<nav class="inhaltsverzeichnis">' . "\n    "
+                    $navClass = 'inhaltsverzeichnis' . ($cssClass !== '' ? ' ' . $cssClass : '');
+                    $idAttr   = $htmlId !== '' ? ' id="' . htmlspecialchars($htmlId, ENT_QUOTES, 'UTF-8') . '"' : '';
+
+                    return '<nav class="' . $navClass . '"' . $idAttr . '>' . "\n    "
                         . TocListRenderer::render($filtered, $listType)
                         . "\n</nav>";
                 },
