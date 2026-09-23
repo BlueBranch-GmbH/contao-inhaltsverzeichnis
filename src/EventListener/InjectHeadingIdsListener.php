@@ -55,8 +55,17 @@ class InjectHeadingIdsListener implements EventSubscriberInterface
             static function (array $matches) use (&$seen, &$headings): string {
                 [, $tag, $attrs, $inner] = $matches;
 
-                // Skip tags that already carry an id attribute
-                if (preg_match('/\bid\s*=/i', $attrs)) {
+                // Tags that already carry an id attribute: keep the id, but still
+                // collect the heading for the page-mode TOC (e.g. PCT theme boxes
+                // render <h2 id="..."> themselves).
+                if (preg_match('/\bid\s*=\s*["\']([^"\']+)["\']/i', $attrs, $idMatch)) {
+                    $existingText = trim(strip_tags($inner));
+
+                    if ($existingText !== '' && $idMatch[1] !== '') {
+                        $seen[$idMatch[1]] = ($seen[$idMatch[1]] ?? 0) + 1;
+                        $headings[] = ['level' => (int) ltrim($tag, 'h'), 'text' => $existingText, 'slug' => $idMatch[1]];
+                    }
+
                     return $matches[0];
                 }
 
